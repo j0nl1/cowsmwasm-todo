@@ -3,8 +3,8 @@ use std::fs::create_dir_all;
 
 use cosmwasm_schema::{export_schema, remove_schemas, schema_for};
 
-use todo_list::models::{Todo, Status};
-use todo_list::msg::{TodosResponse, ExecuteMsg, InstantiateMsg, QueryMsg};
+use todo_list::models::{Status, Todo};
+use todo_list::msg::{ExecuteMsg, InstantiateMsg, QueryMsg, TodosResponse};
 
 fn main() {
     let mut out_dir = current_dir().unwrap();

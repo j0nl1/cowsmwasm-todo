@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 pub enum Status {
     CLOSED = 0,
     OPEN = 1,
-    COMPLETED = 2
+    COMPLETED = 2,
 }
 
 impl Status {
@@ -14,7 +14,7 @@ impl Status {
             0 => Status::CLOSED,
             1 => Status::OPEN,
             2 => Status::COMPLETED,
-            _ => Status::OPEN
+            _ => Status::OPEN,
         }
     }
 }

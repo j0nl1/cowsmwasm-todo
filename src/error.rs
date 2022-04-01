@@ -10,5 +10,5 @@ pub enum ContractError {
     Unauthorized {},
 
     #[error("Custom Error val: {val:?}")]
-    CustomError{val: String},
+    CustomError { val: String },
 }

@@ -1,13 +1,13 @@
 #[cfg(not(feature = "library"))]
 use cosmwasm_std::entry_point;
-use cosmwasm_std::{to_binary, Binary, Deps, DepsMut, Env, MessageInfo, Response, StdResult };
+use cosmwasm_std::{to_binary, Binary, Deps, DepsMut, Env, MessageInfo, Response, StdResult};
 use cw2::set_contract_version;
 
 use crate::error::ContractError;
 use crate::executions::{add_todo, change_status, delete_todo};
-use crate::msg::{ExecuteMsg, InstantiateMsg, QueryMsg };
-use crate::queries::{query_todo, query_list};
-use crate::state::{OWNER, INDEX};
+use crate::msg::{ExecuteMsg, InstantiateMsg, QueryMsg};
+use crate::queries::{query_list, query_todo};
+use crate::state::{INDEX, OWNER};
 
 const CONTRACT_NAME: &str = "crates.io:todo-list";
 const CONTRACT_VERSION: &str = env!("CARGO_PKG_VERSION");
@@ -39,7 +39,7 @@ pub fn execute(
     match msg {
         ExecuteMsg::AddTodo { description } => add_todo(deps, info, description),
         ExecuteMsg::ChangeStatus { id, status } => change_status(deps, info, id, status),
-        ExecuteMsg::Delete { id } => delete_todo(deps, info, id)
+        ExecuteMsg::Delete { id } => delete_todo(deps, info, id),
     }
 }
 

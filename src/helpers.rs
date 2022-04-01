@@ -1,11 +1,9 @@
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
-use cosmwasm_std::{
-    to_binary, Addr, CosmosMsg,StdResult, WasmMsg, Storage
-};
+use cosmwasm_std::{to_binary, Addr, CosmosMsg, StdResult, Storage, WasmMsg};
 
-use crate::msg::{ExecuteMsg};
+use crate::msg::ExecuteMsg;
 use crate::state::INDEX;
 
 pub fn get_id(store: &mut dyn Storage) -> StdResult<u64> {

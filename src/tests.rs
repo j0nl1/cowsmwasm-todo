@@ -167,9 +167,6 @@ mod tests {
         )
         .unwrap();
         let todos: TodosResponse = from_binary(&res).unwrap();
-        assert_eq!(
-            todos.todos,
-            vec![(0, open_todo), (1, closed_todo)]
-        );
+        assert_eq!(todos.todos, vec![(0, open_todo), (1, closed_todo)]);
     }
 }

@@ -63,7 +63,9 @@ mod tests {
         fn add_todo() {
             let (mut app, cw_template_contract) = proper_instantiate();
 
-            let msg = ExecuteMsg::AddTodo { description: String::from("This is my awesome description") };
+            let msg = ExecuteMsg::AddTodo {
+                description: String::from("This is my awesome description"),
+            };
             let cosmos_msg = cw_template_contract.call(msg).unwrap();
             app.execute(Addr::unchecked(USER), cosmos_msg).unwrap();
         }
