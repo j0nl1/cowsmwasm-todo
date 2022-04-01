@@ -7,7 +7,7 @@ mod tests {
 
     use crate::contract::{execute, instantiate, query};
     use crate::models::{Status, Todo};
-    use crate::msg::{ExecuteMsg, InstantiateMsg, QueryMsg};
+    use crate::msg::{ExecuteMsg, InstantiateMsg, QueryMsg, TodosResponse};
     use crate::state::TODOS;
 
     #[test]
@@ -137,7 +137,7 @@ mod tests {
         assert_eq!(value, todo);
     }
 
-  /*   #[test]
+    #[test]
     fn get_list() {
         let mut deps = mock_dependencies();
         let info = mock_info("creator", &coins(1000, "token"));
@@ -151,8 +151,8 @@ mod tests {
             status: Status::CLOSED,
         };
 
-        let f1 = TODOS.save(deps.as_mut().storage, (info.sender.clone(), 0), &open_todo);
-        let f2 = TODOS.save(
+        let _f1 = TODOS.save(deps.as_mut().storage, (info.sender.clone(), 0), &open_todo);
+        let _f2 = TODOS.save(
             deps.as_mut().storage,
             (info.sender.clone(), 1),
             &closed_todo,
@@ -166,10 +166,10 @@ mod tests {
             },
         )
         .unwrap();
-        let todos: Todo = from_binary(&res).unwrap();
+        let todos: TodosResponse = from_binary(&res).unwrap();
         assert_eq!(
             todos.todos,
-            vec![(0, &open_todo), (1, &closed_todo)]
+            vec![(0, open_todo), (1, closed_todo)]
         );
-    } */
+    }
 }
