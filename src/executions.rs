@@ -11,11 +11,11 @@ pub fn add_todo(
     description: String,
 ) -> Result<Response, ContractError> {
     let data = Todo {
-        description: description,
+        description,
         status: Status::OPEN,
     };
     let id = get_id(deps.storage)?;
-    TODOS.save(deps.storage, (info.sender.clone(), id), &data)?;
+    TODOS.save(deps.storage, (info.sender, id), &data)?;
     Ok(Response::new()
         .add_attribute("method", "try_add")
         .add_attribute("todo_id", "1"))
@@ -27,7 +27,7 @@ pub fn change_status(
     id: u64,
     status: u8,
 ) -> Result<Response, ContractError> {
-    let todo = TODOS.key((info.sender.clone(), id));
+    let todo = TODOS.key((info.sender, id));
     todo.update(deps.storage, |x| -> Result<_, ContractError> {
         let updated_todo = Todo {
             description: x.unwrap().description,
@@ -39,7 +39,7 @@ pub fn change_status(
 }
 
 pub fn delete_todo(deps: DepsMut, info: MessageInfo, id: u64) -> Result<Response, ContractError> {
-    let todo = TODOS.key((info.sender.clone(), id));
+    let todo = TODOS.key((info.sender, id));
     todo.remove(deps.storage);
     Ok(Response::new())
 }
