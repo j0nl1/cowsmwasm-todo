@@ -4,13 +4,14 @@ on:
 
 name: CosmWasm CI
 
+defaults:
+  run:
+    working-directory: cw-contract
+
 jobs:
   test:
     name: Test Suite
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./cw-contract
     steps:
       - name: Checkout sources
         uses: actions/checkout@v2
@@ -22,8 +23,7 @@ jobs:
           toolchain: 1.58.1
           target: wasm32-unknown-unknown
           override: true
-      - name: test-directory
-        run: pwd
+
       - name: Run unit tests
         uses: actions-rs/cargo@v1
         with:
@@ -43,9 +43,6 @@ jobs:
   lints:
     name: Lints
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./cw-contract
     steps:
       - name: Checkout sources
         uses: actions/checkout@v2
