@@ -1,12 +1,8 @@
 on:
   pull_request:
-    branches: ["develop"]
+    branches: []
 
 name: CosmWasm CI
-
-defaults:
-  run:
-    working-directory: cw-contract
 
 jobs:
   test:
