@@ -10,3 +10,6 @@
 # IDEs
 *.iml
 .idea
+
+#NodeJS
+**/node_modules
