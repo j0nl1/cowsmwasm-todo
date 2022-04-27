@@ -1,5 +1,10 @@
 import React from "react";
-import { render } from "react-dom";
+import ReactDOM from "react-dom/client";
+import App from "./App";
 import "todomvc-app-css/index.css";
 
-render(<div />, document.getElementById("root"));
+ReactDOM.createRoot(document.getElementById("root")!).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
