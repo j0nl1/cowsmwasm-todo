@@ -1,0 +1,14 @@
+{
+  "name": "cw-todo-list",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "workspaces": [
+    "ui/*"
+  ],
+  "scripts": {
+    "react:start": "npm start -w @ui/react",
+    "react:build": "npm start -w @ui/react"
+  },
+  "author": "Javier Aceña (j0nl1) <jonlitech@gmail.com>"
+}
