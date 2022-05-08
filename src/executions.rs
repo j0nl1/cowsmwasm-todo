@@ -13,7 +13,7 @@ pub fn add_todo(
 ) -> Result<Response, ContractError> {
     let id = get_id(deps.storage)?;
     let data = Todo {
-        id: id,
+        id,
         description,
         status: Status::OPEN,
     };
@@ -99,7 +99,7 @@ mod tests {
 
         let id = 0;
         let todo = Todo {
-            id: id.clone(),
+            id,
             description: "Improve tests".to_string(),
             status: Status::OPEN,
         };
@@ -122,7 +122,7 @@ mod tests {
 
         let id = 0;
         let todo = Todo {
-            id: id,
+            id,
             description: "Improve tests".to_string(),
             status: Status::OPEN,
         };
@@ -133,7 +133,7 @@ mod tests {
         let status = 2;
 
         let msg = ExecuteMsg::EditTodo {
-            id: id,
+            id,
             description: None,
             status: Some(status.clone()),
         };
