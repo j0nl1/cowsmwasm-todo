@@ -50,3 +50,23 @@ pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
         QueryMsg::GetList { addr } => to_binary(&query_list(deps, addr)?),
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use cosmwasm_std::coins;
+    use cosmwasm_std::testing::{mock_dependencies_with_balance, mock_env, mock_info};
+
+    use crate::contract::instantiate;
+    use crate::msg::InstantiateMsg;
+
+    #[test]
+    fn proper_initialization() {
+        let mut deps = mock_dependencies_with_balance(&coins(2, "token"));
+
+        let msg = InstantiateMsg { index: 0 };
+        let info = mock_info("creator", &coins(1000, "token"));
+
+        let res = instantiate(deps.as_mut(), mock_env(), info, msg).unwrap();
+        assert_eq!(0, res.messages.len());
+    }
+}
