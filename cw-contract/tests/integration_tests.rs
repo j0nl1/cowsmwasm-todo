@@ -38,7 +38,7 @@ fn proper_instantiate() -> (App, CwTemplateContract) {
     let mut app = mock_app();
     let cw_template_id = app.store_code(contract_template());
 
-    let msg = InstantiateMsg { index: 0 };
+    let msg = InstantiateMsg {};
     let cw_template_contract_addr = app
         .instantiate_contract(
             cw_template_id,

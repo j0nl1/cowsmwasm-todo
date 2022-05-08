@@ -1,17 +1,32 @@
-use crate::{models::Todo, msg::TodosResponse, state::TODOS};
-use cosmwasm_std::{Addr, Deps, Order, StdResult};
+use cosmwasm_std::{Deps, Order, StdError, StdResult};
+use cw_storage_plus::{Bound};
 
-pub fn query_todo(deps: Deps, id: u64, addr: Addr) -> StdResult<Todo> {
-    let todo = TODOS.key((addr, id));
-    let state = todo.load(deps.storage)?;
-    Ok(state)
+use crate::{models::Todo, msg::TodosResponse, state::TODOS};
+
+const DEFAULT_LIMIT: u64 = 10;
+
+pub fn query_todo(deps: Deps, id: u64, addr: String) -> StdResult<Todo> {
+    let v_addr = deps.api.addr_validate(&addr)?;
+    match TODOS.load(deps.storage, (&v_addr, id)) {
+        Ok(todo) => Ok(todo),
+        Err(_) => Err(StdError::not_found("todo")),
+    }
 }
 
-pub fn query_list(deps: Deps, addr: Addr) -> StdResult<TodosResponse> {
-    let todos: StdResult<Vec<_>> = TODOS
-        .prefix(addr)
-        .range(deps.storage, None, None, Order::Ascending)
+pub fn query_list(deps: Deps, addr: String, offset: Option<u64>, limit: Option<u64>) -> StdResult<TodosResponse> {
+    let limit = limit.unwrap_or(DEFAULT_LIMIT);
+    let min: u64 = offset.unwrap_or(0);
+    let max: u64 = &min + &limit;
+
+    let v_addr = deps.api.addr_validate(&addr)?;
+
+    let todos: StdResult<Vec<Todo>> = TODOS
+        .prefix(&v_addr)
+        .range(deps.storage, Some(Bound::inclusive(min)), Some(Bound::inclusive(max)), Order::Ascending)
+        .take(limit as usize)
+        .map(|i| i.map(|(_, t)| t))
         .collect();
+
     Ok(TodosResponse { todos: todos? })
 }
 
@@ -38,7 +53,7 @@ mod tests {
 
         let _res = TODOS.save(
             deps.as_mut().storage,
-            (info.sender.clone(), id.clone()),
+            (&info.sender, id.clone()),
             &todo,
         );
 
@@ -46,7 +61,7 @@ mod tests {
             deps.as_ref(),
             mock_env(),
             QueryMsg::GetTodo {
-                addr: info.sender,
+                addr: info.sender.to_string(),
                 id: id.clone(),
             },
         )
@@ -64,27 +79,29 @@ mod tests {
             description: String::from("OPEN"),
             status: Status::OPEN,
         };
-        let closed_todo = Todo {
-            description: String::from("CLOSED"),
-            status: Status::CLOSED,
+        let completed_todo = Todo {
+            description: String::from("COMPLETED"),
+            status: Status::COMPLETED,
         };
 
-        let _f1 = TODOS.save(deps.as_mut().storage, (info.sender.clone(), 0), &open_todo);
+        let _f1 = TODOS.save(deps.as_mut().storage, (&info.sender, 0), &open_todo);
         let _f2 = TODOS.save(
             deps.as_mut().storage,
-            (info.sender.clone(), 1),
-            &closed_todo,
+            (&info.sender, 1),
+            &completed_todo,
         );
 
         let res = query(
             deps.as_ref(),
             mock_env(),
             QueryMsg::GetList {
-                addr: info.sender.clone(),
+                addr: info.sender.to_string(),
+                offset: None,
+                limit: None,
             },
         )
         .unwrap();
         let todos: TodosResponse = from_binary(&res).unwrap();
-        assert_eq!(todos.todos, vec![(0, open_todo), (1, closed_todo)]);
+        assert_eq!(todos.todos, vec![open_todo, completed_todo]);
     }
 }
