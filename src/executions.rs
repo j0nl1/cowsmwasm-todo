@@ -11,12 +11,13 @@ pub fn add_todo(
     info: MessageInfo,
     description: String,
 ) -> Result<Response, ContractError> {
+    let id = get_id(deps.storage)?;
     let data = Todo {
+        id: id.clone(),
         description,
         status: Status::OPEN,
     };
-    let id = get_id(deps.storage)?;
-    TODOS.save(deps.storage, (&info.sender, id), &data)?;
+    TODOS.save(deps.storage, (&info.sender, id.clone()), &data)?;
     Ok(Response::new()
         .add_attribute("action", "add_todo")
         .add_attribute("id", id.to_string()))
@@ -26,28 +27,8 @@ pub fn edit_todo(
     deps: DepsMut,
     info: MessageInfo,
     id: u64,
-    todo: Todo,
-) -> Result<Response, ContractError> {
-    TODOS.update(
-        deps.storage,
-        (&info.sender, id),
-        |_| -> Result<Todo, ContractError> {
-            Ok(Todo {
-                description: todo.description,
-                status: todo.status,
-            })
-        },
-    )?;
-    Ok(Response::new()
-        .add_attribute("action", "edit_todo")
-        .add_attribute("todo_id", id.to_string()))
-}
-
-pub fn change_status(
-    deps: DepsMut,
-    info: MessageInfo,
-    id: u64,
-    status: u8,
+    description: Option<String>,
+    status: Option<u8>,
 ) -> Result<Response, ContractError> {
     TODOS.update(
         deps.storage,
@@ -55,7 +36,12 @@ pub fn change_status(
         |todo| -> Result<Todo, ContractError> {
             match todo {
                 Some(mut t) => {
-                    t.status = Status::try_from(&status)?;
+                    if status.is_some() {
+                        t.status = Status::try_from(&status.unwrap())?;
+                    }
+                    if description.is_some() {
+                        t.description = description.unwrap();
+                    }
                     Ok(t)
                 }
                 None => Err(ContractError::Std(StdError::not_found("todo"))),
@@ -63,9 +49,8 @@ pub fn change_status(
         },
     )?;
     Ok(Response::new()
-        .add_attribute("action", "change_status")
-        .add_attribute("todo_id", &id.to_string())
-        .add_attribute("status", &status.to_string()))
+        .add_attribute("action", "edit_todo")
+        .add_attribute("todo_id", id.to_string()))
 }
 
 pub fn delete_todo(deps: DepsMut, info: MessageInfo, id: u64) -> Result<Response, ContractError> {
@@ -114,6 +99,7 @@ mod tests {
 
         let id = 0;
         let todo = Todo {
+            id: id.clone(),
             description: "Improve tests".to_string(),
             status: Status::OPEN,
         };
@@ -128,7 +114,7 @@ mod tests {
     }
 
     #[test]
-    fn change_todo() {
+    fn edit_todo() {
         let mut deps = mock_dependencies();
 
         let info = mock_info("creator", &coins(1000, "token"));
@@ -136,6 +122,7 @@ mod tests {
 
         let id = 0;
         let todo = Todo {
+            id: id.clone(),
             description: "Improve tests".to_string(),
             status: Status::OPEN,
         };
@@ -145,9 +132,10 @@ mod tests {
 
         let status = 2;
 
-        let msg = ExecuteMsg::ChangeStatus {
+        let msg = ExecuteMsg::EditTodo {
             id: id.clone(),
-            status: status.clone(),
+            description: None,
+            status: Some(status.clone()),
         };
         let _res = execute(deps.as_mut(), mock_env(), info.clone(), msg);
 

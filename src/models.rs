@@ -23,6 +23,7 @@ impl TryFrom<&u8> for Status {
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 pub struct Todo {
+    pub id: u64,
     pub description: String,
     pub status: Status,
 }
