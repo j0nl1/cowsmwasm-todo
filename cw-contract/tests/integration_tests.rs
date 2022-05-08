@@ -1,9 +1,8 @@
-
-use todo_list::helpers::CwTemplateContract;
-use todo_list::msg::InstantiateMsg;
-use todo_list::msg::ExecuteMsg;
 use cosmwasm_std::{Addr, Coin, Empty, Uint128};
 use cw_multi_test::{App, AppBuilder, Contract, ContractWrapper, Executor};
+use todo_list::helpers::CwTemplateContract;
+use todo_list::msg::ExecuteMsg;
+use todo_list::msg::InstantiateMsg;
 
 pub fn contract_template() -> Box<dyn Contract<Empty>> {
     let contract = ContractWrapper::new(
@@ -38,7 +37,7 @@ fn proper_instantiate() -> (App, CwTemplateContract) {
     let mut app = mock_app();
     let cw_template_id = app.store_code(contract_template());
 
-    let msg = InstantiateMsg { index: 0 };
+    let msg = InstantiateMsg {};
     let cw_template_contract_addr = app
         .instantiate_contract(
             cw_template_id,
