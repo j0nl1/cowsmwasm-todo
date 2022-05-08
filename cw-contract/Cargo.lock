@@ -508,6 +508,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "semver"
+version = "1.0.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8cb243bdfdb5936c8dc3c45762a19d12ab4550cdc753bc247637d4ec35a040fd"
+
+[[package]]
 name = "serde"
 version = "1.0.127"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -634,7 +640,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "todo-list"
+name = "todo_list"
 version = "0.1.0"
 dependencies = [
  "cosmwasm-schema",
@@ -644,6 +650,7 @@ dependencies = [
  "cw-storage-plus",
  "cw2",
  "schemars",
+ "semver",
  "serde",
  "thiserror",
 ]
