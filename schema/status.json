@@ -3,7 +3,6 @@
   "title": "Status",
   "type": "string",
   "enum": [
-    "CLOSED",
     "OPEN",
     "COMPLETED"
   ]

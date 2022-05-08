@@ -9,19 +9,7 @@
     "todos": {
       "type": "array",
       "items": {
-        "type": "array",
-        "items": [
-          {
-            "type": "integer",
-            "format": "uint64",
-            "minimum": 0.0
-          },
-          {
-            "$ref": "#/definitions/Todo"
-          }
-        ],
-        "maxItems": 2,
-        "minItems": 2
+        "$ref": "#/definitions/Todo"
       }
     }
   },
@@ -29,7 +17,6 @@
     "Status": {
       "type": "string",
       "enum": [
-        "CLOSED",
         "OPEN",
         "COMPLETED"
       ]
