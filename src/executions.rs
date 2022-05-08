@@ -13,11 +13,11 @@ pub fn add_todo(
 ) -> Result<Response, ContractError> {
     let id = get_id(deps.storage)?;
     let data = Todo {
-        id: id.clone(),
+        id: id,
         description,
         status: Status::OPEN,
     };
-    TODOS.save(deps.storage, (&info.sender, id.clone()), &data)?;
+    TODOS.save(deps.storage, (&info.sender, id), &data)?;
     Ok(Response::new()
         .add_attribute("action", "add_todo")
         .add_attribute("id", id.to_string()))
@@ -36,11 +36,11 @@ pub fn edit_todo(
         |todo| -> Result<Todo, ContractError> {
             match todo {
                 Some(mut t) => {
-                    if status.is_some() {
-                        t.status = Status::try_from(&status.unwrap())?;
+                    if let Some(cstatus) = status {
+                        t.status = Status::try_from(&cstatus)?;
                     }
-                    if description.is_some() {
-                        t.description = description.unwrap();
+                    if let Some(cdescription) = description {
+                        t.description = cdescription;
                     }
                     Ok(t)
                 }
@@ -122,18 +122,18 @@ mod tests {
 
         let id = 0;
         let todo = Todo {
-            id: id.clone(),
+            id: id,
             description: "Improve tests".to_string(),
             status: Status::OPEN,
         };
 
-        let _res = TODOS.save(deps.as_mut().storage, (&info.sender, id.clone()), &todo);
-        assert_eq!(true, TODOS.has(&deps.storage, (&info.sender, id.clone())));
+        let _res = TODOS.save(deps.as_mut().storage, (&info.sender, id), &todo);
+        assert_eq!(true, TODOS.has(&deps.storage, (&info.sender, id)));
 
         let status = 2;
 
         let msg = ExecuteMsg::EditTodo {
-            id: id.clone(),
+            id: id,
             description: None,
             status: Some(status.clone()),
         };
