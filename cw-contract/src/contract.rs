@@ -1,15 +1,16 @@
 #[cfg(not(feature = "library"))]
 use cosmwasm_std::entry_point;
-use cosmwasm_std::{to_binary, Binary, Deps, DepsMut, Env, MessageInfo, Response, StdResult};
+use cosmwasm_std::{to_binary, Binary, Deps, DepsMut, Env, MessageInfo, Response, StdResult, StdError};
 use cw2::set_contract_version;
+use semver::Version;
 
 use crate::error::ContractError;
 use crate::executions::{add_todo, change_status, delete_todo};
-use crate::msg::{ExecuteMsg, InstantiateMsg, QueryMsg};
+use crate::msg::{ExecuteMsg, InstantiateMsg, QueryMsg, MigrateMsg};
 use crate::queries::{query_list, query_todo};
 use crate::state::{INDEX, OWNER};
 
-const CONTRACT_NAME: &str = "crates.io:todo-list";
+const CONTRACT_NAME: &str = "crates.io:todo_list";
 const CONTRACT_VERSION: &str = env!("CARGO_PKG_VERSION");
 
 #[cfg_attr(not(feature = "library"), entry_point)]
@@ -27,6 +28,23 @@ pub fn instantiate(
         .add_attribute("method", "instantiate")
         .add_attribute("index", msg.index.to_string())
         .add_attribute("owner", info.sender.to_string()))
+}
+
+#[cfg_attr(not(feature = "library"), entry_point)]
+pub fn migrate(deps: DepsMut, _env: Env, _msg: MigrateMsg) -> Result<Response, ContractError> {
+    let cw_info = cw2::get_contract_version(deps.storage)?;
+    let cver: Version = cw_info.version.parse()?;
+
+
+    if cw_info.contract != CONTRACT_NAME {
+        return Err(StdError::generic_err("Can only upgrade from same type").into());
+    }
+
+    if cver < CONTRACT_VERSION.parse()? {
+        set_contract_version(deps.storage, CONTRACT_NAME, CONTRACT_VERSION)?;
+    }
+
+    Ok(Response::default())
 }
 
 #[cfg_attr(not(feature = "library"), entry_point)]
