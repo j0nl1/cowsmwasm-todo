@@ -6,7 +6,7 @@ use cw2::set_contract_version;
 use semver::Version;
 
 use crate::error::ContractError;
-use crate::executions::{add_todo, change_status, delete_todo};
+use crate::executions::{add_todo, delete_todo, edit_todo};
 use crate::msg::{ExecuteMsg, InstantiateMsg, MigrateMsg, QueryMsg};
 use crate::queries::{query_list, query_todo};
 use crate::state::INDEX;
@@ -52,7 +52,11 @@ pub fn execute(
 ) -> Result<Response, ContractError> {
     match msg {
         ExecuteMsg::AddTodo { description } => add_todo(deps, info, description),
-        ExecuteMsg::ChangeStatus { id, status } => change_status(deps, info, id, status),
+        ExecuteMsg::EditTodo {
+            id,
+            description,
+            status,
+        } => edit_todo(deps, info, id, description, status),
         ExecuteMsg::Delete { id } => delete_todo(deps, info, id),
     }
 }

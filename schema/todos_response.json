@@ -25,11 +25,17 @@
       "type": "object",
       "required": [
         "description",
+        "id",
         "status"
       ],
       "properties": {
         "description": {
           "type": "string"
+        },
+        "id": {
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0.0
         },
         "status": {
           "$ref": "#/definitions/Status"

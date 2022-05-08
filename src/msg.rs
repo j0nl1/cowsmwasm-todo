@@ -12,9 +12,17 @@ pub struct MigrateMsg {}
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 #[serde(rename_all = "snake_case")]
 pub enum ExecuteMsg {
-    AddTodo { description: String },
-    ChangeStatus { id: u64, status: u8 },
-    Delete { id: u64 },
+    AddTodo {
+        description: String,
+    },
+    EditTodo {
+        id: u64,
+        description: Option<String>,
+        status: Option<u8>,
+    },
+    Delete {
+        id: u64,
+    },
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]

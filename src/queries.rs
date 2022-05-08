@@ -57,6 +57,7 @@ mod tests {
 
         let id = 0;
         let todo = Todo {
+            id: id.clone(),
             description: String::from("Improve tests"),
             status: Status::OPEN,
         };
@@ -82,10 +83,12 @@ mod tests {
         let info = mock_info("creator", &coins(1000, "token"));
 
         let open_todo = Todo {
+            id: 0,
             description: String::from("OPEN"),
             status: Status::OPEN,
         };
         let completed_todo = Todo {
+            id: 1,
             description: String::from("COMPLETED"),
             status: Status::COMPLETED,
         };
