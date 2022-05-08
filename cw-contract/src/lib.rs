@@ -1,5 +1,3 @@
-mod tests;
-
 pub mod contract;
 pub mod error;
 pub mod executions;
