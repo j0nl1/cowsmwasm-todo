@@ -21,7 +21,7 @@ pub fn query_list(
 ) -> StdResult<TodosResponse> {
     let limit = limit.unwrap_or(DEFAULT_LIMIT);
     let min: u64 = offset.unwrap_or(0);
-    let max: u64 = &min + &limit;
+    let max: u64 = min + limit;
 
     let v_addr = deps.api.addr_validate(&addr)?;
 
