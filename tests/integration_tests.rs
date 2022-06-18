@@ -1,8 +1,10 @@
 use cosmwasm_std::{Addr, Coin, Empty, Uint128};
 use cw_multi_test::{App, AppBuilder, Contract, ContractWrapper, Executor};
-use todo_list::helpers::CwTemplateContract;
 use todo_list::msg::ExecuteMsg;
 use todo_list::msg::InstantiateMsg;
+
+mod common;
+use common::CwTemplateContract;
 
 pub fn contract_template() -> Box<dyn Contract<Empty>> {
     let contract = ContractWrapper::new(
