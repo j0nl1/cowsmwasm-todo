@@ -1,16 +1,19 @@
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
-use cosmwasm_std::{to_binary, Addr, CosmosMsg, StdResult, Storage, WasmMsg};
+use cosmwasm_std::{to_binary, Addr, CosmosMsg, StdResult, WasmMsg, Deps};
 
+use crate::error::ContractError;
 use crate::msg::ExecuteMsg;
-use crate::state::INDEX;
+use crate::state::{CONFIG};
 
-pub fn get_id(store: &mut dyn Storage) -> StdResult<u64> {
-    let id: u64 = INDEX.may_load(store)?.unwrap_or_default();
-    let next_id: u64 = &id + 1;
-    INDEX.save(store, &next_id)?;
-    Ok(id)
+pub fn ensure_is_owner(deps: Deps, sender: &Addr) -> Result<(), ContractError> {
+    let addr_canonical = deps.api.addr_canonicalize(sender.as_ref())?;
+    let owner = CONFIG.load(deps.storage)?.owner;
+    if addr_canonical != owner {
+        return Err(ContractError::Unauthorized {});
+    }
+    Ok(())
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]

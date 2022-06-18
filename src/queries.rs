@@ -3,30 +3,26 @@ use cw_storage_plus::Bound;
 
 use crate::{models::Todo, msg::TodosResponse, state::TODOS};
 
+const MAX_LIMIT: u64 = 30;
 const DEFAULT_LIMIT: u64 = 10;
 
-pub fn query_todo(deps: Deps, id: u64, addr: String) -> StdResult<Todo> {
-    let v_addr = deps.api.addr_validate(&addr)?;
-    match TODOS.load(deps.storage, (&v_addr, id)) {
+pub fn query_todo(deps: Deps, id: u64) -> StdResult<Todo> {
+    match TODOS.load(deps.storage, id) {
         Ok(todo) => Ok(todo),
         Err(_) => Err(StdError::not_found("todo")),
     }
 }
 
-pub fn query_list(
+pub fn query_todo_list(
     deps: Deps,
-    addr: String,
     offset: Option<u64>,
     limit: Option<u64>,
 ) -> StdResult<TodosResponse> {
-    let limit = limit.unwrap_or(DEFAULT_LIMIT);
+    let limit = limit.unwrap_or(DEFAULT_LIMIT).min(MAX_LIMIT);
     let min: u64 = offset.unwrap_or(0);
     let max: u64 = min + limit;
 
-    let v_addr = deps.api.addr_validate(&addr)?;
-
     let todos: StdResult<Vec<Todo>> = TODOS
-        .prefix(&v_addr)
         .range(
             deps.storage,
             Some(Bound::inclusive(min)),
@@ -34,7 +30,7 @@ pub fn query_list(
             Order::Ascending,
         )
         .take(limit as usize)
-        .map(|i| i.map(|(_, t)| t))
+        .map(|i| i.map(|e| e.1))
         .collect();
 
     Ok(TodosResponse { todos: todos? })
@@ -42,8 +38,8 @@ pub fn query_list(
 
 #[cfg(test)]
 mod tests {
-    use cosmwasm_std::testing::{mock_dependencies, mock_env, mock_info};
-    use cosmwasm_std::{coins, from_binary};
+    use cosmwasm_std::testing::{mock_dependencies, mock_env};
+    use cosmwasm_std::{from_binary};
 
     use crate::contract::query;
     use crate::models::{Status, Todo};
@@ -53,24 +49,20 @@ mod tests {
     #[test]
     fn get_todo() {
         let mut deps = mock_dependencies();
-        let info = mock_info("creator", &coins(1000, "token"));
 
-        let id = 0;
+        let id = 1;
         let todo = Todo {
-            id: id.clone(),
+            id: id,
             description: String::from("Improve tests"),
-            status: Status::OPEN,
+            status: Status::Pending,
         };
 
-        let _res = TODOS.save(deps.as_mut().storage, (&info.sender, id.clone()), &todo);
+        let _res = TODOS.save(deps.as_mut().storage, id, &todo);
 
         let res = query(
             deps.as_ref(),
             mock_env(),
-            QueryMsg::GetTodo {
-                addr: info.sender.to_string(),
-                id: id.clone(),
-            },
+            QueryMsg::GetTodo { id },
         )
         .unwrap();
         let value: Todo = from_binary(&res).unwrap();
@@ -80,27 +72,25 @@ mod tests {
     #[test]
     fn get_list() {
         let mut deps = mock_dependencies();
-        let info = mock_info("creator", &coins(1000, "token"));
 
         let open_todo = Todo {
             id: 0,
             description: String::from("OPEN"),
-            status: Status::OPEN,
+            status: Status::Pending,
         };
         let completed_todo = Todo {
             id: 1,
             description: String::from("COMPLETED"),
-            status: Status::COMPLETED,
+            status: Status::Done,
         };
 
-        let _f1 = TODOS.save(deps.as_mut().storage, (&info.sender, 0), &open_todo);
-        let _f2 = TODOS.save(deps.as_mut().storage, (&info.sender, 1), &completed_todo);
+        let _f1 = TODOS.save(deps.as_mut().storage, 0, &open_todo);
+        let _f2 = TODOS.save(deps.as_mut().storage, 1, &completed_todo);
 
         let res = query(
             deps.as_ref(),
             mock_env(),
-            QueryMsg::GetList {
-                addr: info.sender.to_string(),
+            QueryMsg::GetTodoList {
                 offset: None,
                 limit: None,
             },

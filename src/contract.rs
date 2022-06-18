@@ -6,10 +6,11 @@ use cw2::set_contract_version;
 use semver::Version;
 
 use crate::error::ContractError;
-use crate::executions::{add_todo, delete_todo, edit_todo};
+use crate::executions::{add_todo, delete_todo, update_todo};
 use crate::msg::{ExecuteMsg, InstantiateMsg, MigrateMsg, QueryMsg};
-use crate::queries::{query_list, query_todo};
-use crate::state::INDEX;
+use crate::queries::{query_todo_list, query_todo};
+use crate::models::{Config};
+use crate::state::{CONFIG, INDEX};
 
 const CONTRACT_NAME: &str = "crates.io:todo_list";
 const CONTRACT_VERSION: &str = env!("CARGO_PKG_VERSION");
@@ -18,13 +19,27 @@ const CONTRACT_VERSION: &str = env!("CARGO_PKG_VERSION");
 pub fn instantiate(
     deps: DepsMut,
     _env: Env,
-    _info: MessageInfo,
-    _msg: InstantiateMsg,
+    info: MessageInfo,
+    msg: InstantiateMsg,
 ) -> Result<Response, ContractError> {
     set_contract_version(deps.storage, CONTRACT_NAME, CONTRACT_VERSION)?;
-    INDEX.save(deps.storage, &0)?;
 
-    Ok(Response::new().add_attribute("action", "instantiate"))
+    let owner = msg
+        .owner
+        .and_then(|addr_string| deps.api.addr_validate(addr_string.as_str()).ok())
+        .unwrap_or(info.sender);
+
+    let config = Config {
+        owner: deps.api.addr_canonicalize(&owner.to_string())?
+    };
+
+    CONFIG.save(deps.storage, &config)?;
+
+    INDEX.save(deps.storage, &0u64)?;
+
+    Ok(Response::new()
+    .add_attribute("method", "instantiate")
+    .add_attribute("owner", owner))
 }
 
 #[cfg_attr(not(feature = "library"), entry_point)]
@@ -52,31 +67,30 @@ pub fn execute(
 ) -> Result<Response, ContractError> {
     match msg {
         ExecuteMsg::AddTodo { description } => add_todo(deps, info, description),
-        ExecuteMsg::EditTodo {
+        ExecuteMsg::UpdateTodo {
             id,
             description,
-            status,
-        } => edit_todo(deps, info, id, description, status),
-        ExecuteMsg::Delete { id } => delete_todo(deps, info, id),
+            status
+        } => update_todo(deps, info, id, description, status),
+        ExecuteMsg::DeleteTodo { id } => delete_todo(deps, info, id),
     }
 }
 
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
     match msg {
-        QueryMsg::GetTodo { id, addr } => to_binary(&query_todo(deps, id, addr)?),
-        QueryMsg::GetList {
-            addr,
+        QueryMsg::GetTodo { id } => to_binary(&query_todo(deps, id)?),
+        QueryMsg::GetTodoList {
             offset,
             limit,
-        } => to_binary(&query_list(deps, addr, offset, limit)?),
+        } => to_binary(&query_todo_list(deps, offset, limit)?),
     }
 }
 
 #[cfg(test)]
 mod tests {
     use cosmwasm_std::coins;
-    use cosmwasm_std::testing::{mock_dependencies_with_balance, mock_env, mock_info};
+    use cosmwasm_std::testing::{mock_dependencies_with_balance, mock_env, mock_info, };
 
     use crate::contract::instantiate;
     use crate::msg::InstantiateMsg;
@@ -85,10 +99,10 @@ mod tests {
     fn proper_initialization() {
         let mut deps = mock_dependencies_with_balance(&coins(2, "token"));
 
-        let msg = InstantiateMsg {};
+        let msg = InstantiateMsg { owner: Some("owner".to_string()) };
         let info = mock_info("creator", &coins(1000, "token"));
 
         let res = instantiate(deps.as_mut(), mock_env(), info, msg).unwrap();
-        assert_eq!(0, res.messages.len());
+        assert_eq!(res.attributes[1].value, "owner".to_string());
     }
 }
