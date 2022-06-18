@@ -1,7 +1,7 @@
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
-use cosmwasm_std::{to_binary, CosmosMsg, StdResult, WasmMsg, Addr};
+use cosmwasm_std::{to_binary, Addr, CosmosMsg, StdResult, WasmMsg};
 use todo_list::msg::ExecuteMsg;
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]

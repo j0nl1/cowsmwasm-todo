@@ -1,4 +1,4 @@
-use cosmwasm_std::{CanonicalAddr};
+use cosmwasm_std::CanonicalAddr;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
@@ -7,19 +7,18 @@ pub struct Config {
     pub owner: CanonicalAddr,
 }
 
-
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 #[serde(rename_all = "snake_case")]
 pub enum Status {
     Pending,
     InProgress,
     Done,
-    Cancelled
+    Cancelled,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 pub struct Todo {
     pub id: u64,
     pub description: String,
-    pub status: Status
+    pub status: Status,
 }

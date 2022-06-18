@@ -1,5 +1,5 @@
-use cw_storage_plus::{Item, Map};
 use crate::models::{Config, Todo};
+use cw_storage_plus::{Item, Map};
 
 pub const INDEX: Item<u64> = Item::new("index");
 

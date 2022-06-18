@@ -35,7 +35,7 @@ pub enum QueryMsg {
         limit: Option<u64>,
     },
     GetTodo {
-        id: u64
+        id: u64,
     },
 }
 

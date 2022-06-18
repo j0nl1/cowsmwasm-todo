@@ -7,9 +7,9 @@ use semver::Version;
 
 use crate::error::ContractError;
 use crate::executions::{add_todo, delete_todo, update_todo};
+use crate::models::Config;
 use crate::msg::{ExecuteMsg, InstantiateMsg, MigrateMsg, QueryMsg};
-use crate::queries::{query_todo_list, query_todo};
-use crate::models::{Config};
+use crate::queries::{query_todo, query_todo_list};
 use crate::state::{CONFIG, INDEX};
 
 const CONTRACT_NAME: &str = "crates.io:todo_list";
@@ -30,7 +30,7 @@ pub fn instantiate(
         .unwrap_or(info.sender);
 
     let config = Config {
-        owner: deps.api.addr_canonicalize(&owner.to_string())?
+        owner: deps.api.addr_canonicalize(&owner.to_string())?,
     };
 
     CONFIG.save(deps.storage, &config)?;
@@ -38,8 +38,8 @@ pub fn instantiate(
     INDEX.save(deps.storage, &0u64)?;
 
     Ok(Response::new()
-    .add_attribute("method", "instantiate")
-    .add_attribute("owner", owner))
+        .add_attribute("method", "instantiate")
+        .add_attribute("owner", owner))
 }
 
 #[cfg_attr(not(feature = "library"), entry_point)]
@@ -70,7 +70,7 @@ pub fn execute(
         ExecuteMsg::UpdateTodo {
             id,
             description,
-            status
+            status,
         } => update_todo(deps, info, id, description, status),
         ExecuteMsg::DeleteTodo { id } => delete_todo(deps, info, id),
     }
@@ -80,17 +80,16 @@ pub fn execute(
 pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
     match msg {
         QueryMsg::GetTodo { id } => to_binary(&query_todo(deps, id)?),
-        QueryMsg::GetTodoList {
-            offset,
-            limit,
-        } => to_binary(&query_todo_list(deps, offset, limit)?),
+        QueryMsg::GetTodoList { offset, limit } => {
+            to_binary(&query_todo_list(deps, offset, limit)?)
+        }
     }
 }
 
 #[cfg(test)]
 mod tests {
     use cosmwasm_std::coins;
-    use cosmwasm_std::testing::{mock_dependencies_with_balance, mock_env, mock_info, };
+    use cosmwasm_std::testing::{mock_dependencies_with_balance, mock_env, mock_info};
 
     use crate::contract::instantiate;
     use crate::msg::InstantiateMsg;
@@ -99,7 +98,9 @@ mod tests {
     fn proper_initialization() {
         let mut deps = mock_dependencies_with_balance(&coins(2, "token"));
 
-        let msg = InstantiateMsg { owner: Some("owner".to_string()) };
+        let msg = InstantiateMsg {
+            owner: Some("owner".to_string()),
+        };
         let info = mock_info("creator", &coins(1000, "token"));
 
         let res = instantiate(deps.as_mut(), mock_env(), info, msg).unwrap();

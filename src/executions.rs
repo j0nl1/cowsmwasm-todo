@@ -3,7 +3,7 @@ use cosmwasm_std::{DepsMut, MessageInfo, Response, StdError};
 use crate::error::ContractError;
 use crate::helpers::ensure_is_owner;
 use crate::models::{Status, Todo};
-use crate::state::{TODOS, INDEX};
+use crate::state::{INDEX, TODOS};
 
 pub fn add_todo(
     deps: DepsMut,
@@ -11,9 +11,7 @@ pub fn add_todo(
     description: String,
 ) -> Result<Response, ContractError> {
     ensure_is_owner(deps.as_ref(), &info.sender)?;
-    let id = INDEX.update::<_, StdError>(deps.storage, |id| {
-        Ok(id + 1)
-    })?;
+    let id = INDEX.update::<_, StdError>(deps.storage, |id| Ok(id + 1))?;
     let data = Todo {
         id,
         description,
@@ -58,7 +56,7 @@ pub fn delete_todo(deps: DepsMut, info: MessageInfo, id: u64) -> Result<Response
 
 #[cfg(test)]
 mod tests {
-    use cosmwasm_std::{coins};
+    use cosmwasm_std::coins;
     use cosmwasm_std::testing::{mock_dependencies, mock_env, mock_info};
 
     use crate::contract::{execute, instantiate};
@@ -66,7 +64,6 @@ mod tests {
     use crate::msg::{ExecuteMsg, InstantiateMsg};
     use crate::state::TODOS;
 
-   
     const IMSG: InstantiateMsg = InstantiateMsg { owner: None };
 
     #[test]
@@ -123,8 +120,6 @@ mod tests {
 
         let _res = TODOS.save(deps.as_mut().storage, id, &todo);
         assert_eq!(true, TODOS.has(&deps.storage, id));
-
-        
 
         let msg = ExecuteMsg::UpdateTodo {
             id,

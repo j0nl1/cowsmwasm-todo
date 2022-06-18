@@ -38,8 +38,8 @@ pub fn query_todo_list(
 
 #[cfg(test)]
 mod tests {
+    use cosmwasm_std::from_binary;
     use cosmwasm_std::testing::{mock_dependencies, mock_env};
-    use cosmwasm_std::{from_binary};
 
     use crate::contract::query;
     use crate::models::{Status, Todo};
@@ -59,12 +59,7 @@ mod tests {
 
         let _res = TODOS.save(deps.as_mut().storage, id, &todo);
 
-        let res = query(
-            deps.as_ref(),
-            mock_env(),
-            QueryMsg::GetTodo { id },
-        )
-        .unwrap();
+        let res = query(deps.as_ref(), mock_env(), QueryMsg::GetTodo { id }).unwrap();
         let value: Todo = from_binary(&res).unwrap();
         assert_eq!(value, todo);
     }
