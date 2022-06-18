@@ -5,18 +5,12 @@
     {
       "type": "object",
       "required": [
-        "get_list"
+        "get_todo_list"
       ],
       "properties": {
-        "get_list": {
+        "get_todo_list": {
           "type": "object",
-          "required": [
-            "addr"
-          ],
           "properties": {
-            "addr": {
-              "type": "string"
-            },
             "limit": {
               "type": [
                 "integer",
@@ -47,13 +41,9 @@
         "get_todo": {
           "type": "object",
           "required": [
-            "addr",
             "id"
           ],
           "properties": {
-            "addr": {
-              "type": "string"
-            },
             "id": {
               "type": "integer",
               "format": "uint64",
