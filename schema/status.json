@@ -3,7 +3,9 @@
   "title": "Status",
   "type": "string",
   "enum": [
-    "OPEN",
-    "COMPLETED"
+    "pending",
+    "in_progress",
+    "done",
+    "cancelled"
   ]
 }

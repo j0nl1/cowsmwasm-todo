@@ -25,10 +25,10 @@
     {
       "type": "object",
       "required": [
-        "edit_todo"
+        "update_todo"
       ],
       "properties": {
-        "edit_todo": {
+        "update_todo": {
           "type": "object",
           "required": [
             "id"
@@ -46,12 +46,14 @@
               "minimum": 0.0
             },
             "status": {
-              "type": [
-                "integer",
-                "null"
-              ],
-              "format": "uint8",
-              "minimum": 0.0
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/Status"
+                },
+                {
+                  "type": "null"
+                }
+              ]
             }
           }
         }
@@ -61,10 +63,10 @@
     {
       "type": "object",
       "required": [
-        "delete"
+        "delete_todo"
       ],
       "properties": {
-        "delete": {
+        "delete_todo": {
           "type": "object",
           "required": [
             "id"
@@ -80,5 +82,16 @@
       },
       "additionalProperties": false
     }
-  ]
+  ],
+  "definitions": {
+    "Status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "in_progress",
+        "done",
+        "cancelled"
+      ]
+    }
+  }
 }

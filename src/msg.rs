@@ -1,10 +1,12 @@
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
-use crate::models::Todo;
+use crate::models::{Status, Todo};
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
-pub struct InstantiateMsg {}
+pub struct InstantiateMsg {
+    pub owner: Option<String>,
+}
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 pub struct MigrateMsg {}
@@ -15,12 +17,12 @@ pub enum ExecuteMsg {
     AddTodo {
         description: String,
     },
-    EditTodo {
+    UpdateTodo {
         id: u64,
         description: Option<String>,
-        status: Option<u8>,
+        status: Option<Status>,
     },
-    Delete {
+    DeleteTodo {
         id: u64,
     },
 }
@@ -28,19 +30,23 @@ pub enum ExecuteMsg {
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 #[serde(rename_all = "snake_case")]
 pub enum QueryMsg {
-    GetList {
-        addr: String,
+    GetTodoList {
         offset: Option<u64>,
         limit: Option<u64>,
     },
     GetTodo {
         id: u64,
-        addr: String,
     },
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
-#[serde(rename_all = "snake_case")]
+pub struct TodoResponse {
+    pub id: u64,
+    pub description: String,
+    pub status: Status,
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 pub struct TodosResponse {
     pub todos: Vec<Todo>,
 }
